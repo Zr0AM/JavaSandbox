@@ -16,7 +16,7 @@ public class Main {
 		wars = 0;
 		consecutiveWars = 0;
 
-		final long maxCount = 100000000;
+		final long maxCount = 1;
 
 		for (int counter = 0; counter < maxCount; counter++) {
 
@@ -32,6 +32,7 @@ public class Main {
 		System.out.println("Turns: " + turns);
 		System.out.println("wars: " + wars);
 		System.out.println("consecutiveWars: " + consecutiveWars);
+
 
 	}
 
