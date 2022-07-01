@@ -63,6 +63,7 @@ public class Game {
 
 	}
 
+	@SuppressWarnings("unused")
 	private static void PrintResults() {
 
 		String output;

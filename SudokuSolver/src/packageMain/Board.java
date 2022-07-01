@@ -1,108 +1,22 @@
 package packageMain;
 
-import java.util.Stack;
-
 public class Board {
 
-	private static int[][] arrayBoard;
+	private int[][] arrayBoard;
 
-	private static final int boardSize = 9;
-
-	private static boolean elementSet;
-
-	private static Stack<int[][]> boardStates;
-	private static Stack<int[][]> boardHistory;
+	private final int boardSize = 9;
 
 	public Board() {
 
-		initalizeBoard();
+		arrayBoard = new int[boardSize][boardSize];
 
 	}
 
-	public static boolean elementSet() {
+	public void setBoard(int[][] boardIn) {
 
-		return elementSet;
-
-	}
-
-	public void setElement(int row, int col, int value) {
-
-		int localRow = row - 1;
-		int localCol = col - 1;
-
-		if (arrayBoard[localRow][localCol] != 0) {
-
-			elementSet = false;
-			return;
-
-		} else if (testCol(localCol, value)) {
-
-			elementSet = false;
-			return;
-
-		} else if (testRow(localRow, value)) {
-
-			elementSet = false;
-			return;
-
-		} else if (testBox(localRow, localCol, value)) {
-
-			elementSet = false;
-			return;
-
-		}
-
-		elementSet = true;
-
-		boardStates.add(boardCopy());
-
-		arrayBoard[localRow][localCol] = value;
-
-	}
-
-	private int[][] boardCopy() {
-
-		int[][] boardTemp = new int[boardSize][boardSize];
-
-		for (int row = 0; row < boardSize; row++) {
-
-			for (int col = 0; col < boardSize; col++) {
-
-				boardTemp[row][col] = arrayBoard[row][col];
-
-			}
-
-		}
-
-		return boardTemp;
-
-	}
-
-	private int[][] stateCopy() {
-
-		int[][] boardTemp = new int[boardSize][boardSize];
-
-		int[][] boardState = boardStates.pop();
-
-		for (int row = 0; row < boardSize; row++) {
-
-			for (int col = 0; col < boardSize; col++) {
-
-				boardTemp[row][col] = boardState[row][col];
-
-			}
-
-		}
-
-		return boardTemp;
-
-	}
-
-	public void revertBoardState() {
-
-		boardStates.pop();
-		
-		arrayBoard = stateCopy();
+		for (int row = 0; row < boardSize; row++)
+			for (int col = 0; col < boardSize; col++)
+				arrayBoard[row][col] = boardIn[row][col];
 
 	}
 
@@ -146,140 +60,77 @@ public class Board {
 
 	}
 
-	private static void initalizeBoard() {
+	private boolean textBox(int row, int col, int value) {
 
-		arrayBoard = new int[boardSize][boardSize];
+		int rowStart = row - row % 3;
+		int colStart = col - col % 3;
 
-		boardStates = new Stack<int[][]>();
-		
-		boardHistory = new Stack<int[][]>();
+		for (int rowSearch = rowStart; rowSearch < rowStart + 3; rowSearch++) {
+			for (int colSearch = colStart; colSearch < colStart + 3; colSearch++) {
 
-	}
-
-	private static boolean testBox(int searchRow, int searchCol, int value) {
-
-		boolean found = false;
-
-		int lBoundRow = getBound(searchRow, false);
-		int uBoundRow = getBound(searchRow, true);
-
-		int lBoundCol = getBound(searchCol, false);
-		int uBoundCol = getBound(searchCol, true);
-
-		for (int row = lBoundRow; row < uBoundRow; row++) {
-
-			for (int col = lBoundCol; col < uBoundCol; col++) {
-
-				if (arrayBoard[row][col] == value) {
-
-					found = true;
-					break;
-
+				if (arrayBoard[rowSearch][colSearch] == value) {
+					return false;
 				}
 
 			}
-
 		}
-
-		return found;
+		return true;
 
 	}
 
-	private static int getBound(int value, boolean upper) {
-
-		int returnValue = 0;
-
-		if (upper) {
-
-			switch (value) {
-
-			case 0:
-			case 1:
-			case 2:
-				returnValue = 3;
-				break;
-			case 3:
-			case 4:
-			case 5:
-				returnValue = 6;
-				break;
-			case 6:
-			case 7:
-			case 8:
-				returnValue = 9;
-				break;
-
-			}
-
-		} else {
-
-			switch (value) {
-
-			case 0:
-			case 1:
-			case 2:
-				returnValue = 0;
-				break;
-			case 3:
-			case 4:
-			case 5:
-				returnValue = 3;
-				break;
-			case 6:
-			case 7:
-			case 8:
-				returnValue = 6;
-				break;
-
-			}
-
-		}
-
-		return returnValue;
-
-	}
-
-	private static boolean testRow(int searchRow, int value) {
-
-		boolean found = false;
+	private boolean testRow(int searchRow, int value) {
 
 		for (int col = 0; col < boardSize; col++) {
 
 			if (arrayBoard[searchRow][col] == value) {
 
-				found = true;
-				break;
+				return false;
 
 			}
 
 		}
 
-		return found;
+		return true;
 
 	}
 
-	private static boolean testCol(int searchCol, int value) {
-
-		boolean found = false;
+	private boolean testCol(int searchCol, int value) {
 
 		for (int row = 0; row < boardSize; row++) {
 
 			if (arrayBoard[row][searchCol] == value) {
 
-				found = true;
-				break;
+				return false;
 
 			}
 
 		}
 
-		return found;
+		return true;
+
+	}
+
+	private boolean testValue(int row, int col, int value) {
+
+		if (!testRow(row, value)) {
+
+			return false;
+
+		} else if (!testCol(col, value)) {
+
+			return false;
+
+		} else if (!textBox(row, col, value)) {
+
+			return false;
+
+		}
+
+		return true;
 
 	}
 
 	public boolean boardSolved() {
-
-		boolean solved = true;
 
 		for (int row = 0; row < boardSize; row++) {
 
@@ -287,21 +138,36 @@ public class Board {
 
 				if (arrayBoard[row][col] == 0) {
 
-					solved = false;
-					break;
+					return false;
 
 				}
 			}
 
-			if (!solved) {
-
-				break;
-
-			}
 		}
 
-		return solved;
+		return true;
 
 	}
 
+	public boolean solveBoard() {
+
+		for (int row = 0; row < boardSize; row++) {
+			for (int col = 0; col < boardSize; col++) {
+				if (arrayBoard[row][col] == 0) {
+					for (int value = 1; value <= boardSize; value++) {
+						if (testValue(row, col, value)) {
+							arrayBoard[row][col] = value;
+							if (this.solveBoard()) {
+								return true;
+							} else {
+								arrayBoard[row][col] = 0;
+							}
+						}
+					}
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }
